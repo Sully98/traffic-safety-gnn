@@ -1,0 +1,1 @@
+export WORKING_DIR=$(pwd)
