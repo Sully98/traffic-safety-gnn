@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 from os.path import dirname
-
+from multiprocessing import Pool
+import time
 
 # --------------- Initializing Paramaters ----------#
 
@@ -11,11 +12,13 @@ assert isinstance(path, str)
 
 state_name = "CA"
 
-path_stats = path + "data/Road_Networks/" + state_name + "/"
+path_stats = path + "/data/Road_Networks/" + state_name + "/"
 
 
 # --------------- Functions ------------------------#
 
+def read_csv(filename):
+    return pd.read_csv(filename,low_memory=False)
 
 def concat_files(path, final_file_name):
     """
@@ -25,13 +28,14 @@ def concat_files(path, final_file_name):
         final_file_name (str): path of the final file
     """
     count = 0
-    for file_name in os.listdir(path):
-        try:
-            df = pd.concat([df, pd.read_csv(path + file_name, low_memory=False)])
-        except:
-            df = pd.read_csv(path + file_name, low_memory=False)
 
-        count += 1
+    file_list = []
+    for file_name in os.listdir(path):
+        file_list.append(path + file_name)
+    
+    pool = Pool(processes=20)
+    df_list = pool.map(read_csv,file_list)
+    df = pd.concat(df_list)
     df = df.drop_duplicates().reset_index(drop=True)
     df.to_csv(final_file_name, index=False)
 
@@ -43,32 +47,24 @@ def concat_files_one_subfolder(path):
         path (str): directory where all independent files are saved
         final_file_name (str): path of the final file
     """
-
+    file_list =[]
     for folder in os.listdir(path):
-        try:
-            edge_df = pd.concat(
-                [
-                    edge_df,
-                    pd.read_csv(path + folder + "/edge_list.csv", low_memory=False),
-                ]
-            )
-        except:
-            edge_df = pd.read_csv(path + folder + "/edge_list.csv", low_memory=False)
-
+        file_list.append(path + folder + "/edge_list.csv")
+        
+    pool = Pool(processes=20)
+    df_list = pool.map(read_csv,file_list)
+    
+    edge_df = pd.concat(df_list)
     edge_df = edge_df.drop_duplicates().reset_index(drop=True)
     edge_df = edge_df.rename(columns={"u": "node_1", "v": "node_2"})
-
+    
+    file_list =[]
     for folder in os.listdir(path):
-        try:
-            node_df = pd.concat(
-                [
-                    node_df,
-                    pd.read_csv(path + folder + "/node_list.csv", low_memory=False),
-                ]
-            )
-        except:
-            node_df = pd.read_csv(path + folder + "/node_list.csv", low_memory=False)
-
+        file_list.append(path + folder + "/node_list.csv")
+        
+    pool = Pool(processes=20)
+    df_list = pool.map(read_csv,file_list)
+    node_df = pd.concat(df_list)
     node_df = node_df.drop_duplicates().reset_index(drop=True)
     node_df = node_df.rename(columns={"osmid": "node_id"})
 
@@ -82,44 +78,25 @@ def concat_files_two_subfolder(path):
         path (str): directory where all independent files are saved
         final_file_name (str): path of the final file
     """
-
+    file_list = []
     for folder in os.listdir(path):
         for subfolder in os.listdir(path + folder + "/"):
-            try:
-                edge_df = pd.concat(
-                    [
-                        edge_df,
-                        pd.read_csv(
-                            path + folder + "/" + subfolder + "/edge_list.csv",
-                            low_memory=False,
-                        ),
-                    ]
-                )
-            except:
-                edge_df = pd.read_csv(
-                    path + folder + "/" + subfolder + "/edge_list.csv", low_memory=False
-                )
-
+            file_list.append(path + folder + "/" + subfolder + "/edge_list.csv")
+     
+    pool = Pool(processes=20)
+    df_list = pool.map(read_csv,file_list)
+    edge_df = pd.concat(df_list)
     edge_df = edge_df.drop_duplicates().reset_index(drop=True)
     edge_df = edge_df.rename(columns={"u": "node_1", "v": "node_2"})
 
+    file_list = []
     for folder in os.listdir(path):
         for subfolder in os.listdir(path + folder + "/"):
-            try:
-                node_df = pd.concat(
-                    [
-                        node_df,
-                        pd.read_csv(
-                            path + folder + "/" + subfolder + "/node_list.csv",
-                            low_memory=False,
-                        ),
-                    ]
-                )
-            except:
-                node_df = pd.read_csv(
-                    path + folder + "/" + subfolder + "/node_list.csv", low_memory=False
-                )
-
+            file_list.append(path + folder + "/" + subfolder + "/node_list.csv")
+     
+    pool = Pool(processes=20)
+    df_list = pool.map(read_csv,file_list)
+    node_df = pd.concat(df_list)
     node_df = node_df.drop_duplicates().reset_index(drop=True)
     node_df = node_df.rename(columns={"osmid": "node_id"})
 
@@ -127,7 +104,10 @@ def concat_files_two_subfolder(path):
 
 
 # ------------- Load Level-Wise Road Networks ---------------#
+os.makedirs(path_stats + "Road_Network_Level/Nodes",exist_ok=True)
+os.makedirs(path_stats + "Road_Network_Level/Edges",exist_ok=True)
 
+start = time.time()
 print("\nRoad Network of every Level:")
 
 print("\tCities")
@@ -140,7 +120,7 @@ node_df, edge_df = concat_files_one_subfolder(
 
 node_df.to_csv(path_stats + "Road_Network_Level/Nodes/nodes_cities.csv", index=False)
 edge_df.to_csv(path_stats + "Road_Network_Level/Edges/edges_cities.csv", index=False)
-
+print(time.time()-start)
 print("\tCounties")
 node_df, edge_df = concat_files_one_subfolder(
     path_stats
