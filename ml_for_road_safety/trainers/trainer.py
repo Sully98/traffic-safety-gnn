@@ -169,14 +169,14 @@ class Trainer:
                 self.predictor(h[edge[0]], h[edge[1]], edge_attr[perm])
             neg_preds += [preds.squeeze().cpu()]
         neg_preds = torch.cat(neg_preds, dim=0)
-
+        print(pos_preds.cpu().detach().numpy())
         results = {}
 
         # Eval ROC-AUC
         rocauc = self.evaluator.eval(pos_preds, neg_preds)
         results.update(rocauc)
 
-        return results, pos_edges.size(0)
+        return results, pos_preds,neg_preds,pos_edges.size(0)
 
     def train_epoch(self,epoch,num_months):
         total_loss = total_examples = 0
@@ -201,7 +201,7 @@ class Trainer:
             loss = self.train_epoch(epoch,num_months)
 
             if epoch % self.eval_steps == 0:
-                results = self.test(num_months)
+                results = self.test(num_months=0)# just test on one month
                 for key, result in results.items():
                     self.loggers[key].add_result(run=0, result=result)
             

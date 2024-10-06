@@ -146,12 +146,22 @@ class TrafficAccidentDataset:
         edge_feature_dir = os.path.join(self.data_dir, f"{self.state_name}/Edges/edge_features_traffic_{year}.pt")
         if os.path.exists(edge_feature_dir):
             edge_feature_dict = torch.load(edge_feature_dir)
+            # Initialize an empty list to hold processed edge features
+            edge_features_list = []
 
-            # for key in ['unclassified']: edge_features = torch.stack(edge_features, dim=1)
-            column_values = edge_feature_dict['unclassified'].coalesce().values()
-            column_values_mean = column_values[~torch.isnan(column_values)].mean()
-            column_values[torch.isnan(column_values)] = 0 if torch.isnan(column_values_mean) else column_values_mean
-            edge_features = column_values.view(-1, 1)
+            # Iterate through all keys in the edge_feature_dict
+            for key in edge_feature_dict.keys():
+                column_values = edge_feature_dict[key].coalesce().values()  # Get the values for each column
+                column_values_mean = column_values[~torch.isnan(column_values)].mean()
+                
+                # Replace NaNs with the mean value or 0 if the mean is NaN
+                column_values[torch.isnan(column_values)] = 0 if torch.isnan(column_values_mean) else column_values_mean
+                
+                # Reshape column values and add to the list
+                edge_features_list.append(column_values.view(-1, 1))
+
+            # Stack all processed edge features into a single tensor
+            edge_features = torch.cat(edge_features_list, dim=1)
         else:
             edge_features = torch.zeros(self.data.edge_index.shape[1], 1)
 
@@ -369,12 +379,22 @@ def load_monthly_data(data, data_dir = "./data", state_name = "MA", num_negative
     edge_feature_dir = os.path.join(data_dir, f"{state_name}/Edges/edge_features_traffic_{year}.pt")
     if os.path.exists(edge_feature_dir):
         edge_feature_dict = torch.load(edge_feature_dir)
+        # Initialize an empty list to hold processed edge features
+        edge_features_list = []
 
-        # for key in ['unclassified']: edge_features = torch.stack(edge_features, dim=1)
-        column_values = edge_feature_dict['unclassified'].coalesce().values()
-        column_values_mean = column_values[~torch.isnan(column_values)].mean()
-        column_values[torch.isnan(column_values)] = 0 if torch.isnan(column_values_mean) else column_values_mean
-        edge_features = column_values.view(-1, 1)
+        # Iterate through all keys in the edge_feature_dict
+        for key in edge_feature_dict.keys():
+            column_values = edge_feature_dict[key].coalesce().values()  # Get the values for each column
+            column_values_mean = column_values[~torch.isnan(column_values)].mean()
+            
+            # Replace NaNs with the mean value or 0 if the mean is NaN
+            column_values[torch.isnan(column_values)] = 0 if torch.isnan(column_values_mean) else column_values_mean
+            
+            # Reshape column values and add to the list
+            edge_features_list.append(column_values.view(-1, 1))
+
+        # Stack all processed edge features into a single tensor
+        edge_features = torch.cat(edge_features_list, dim=1)
     else:
         edge_features = torch.zeros(data.edge_index.shape[1], 1)
 

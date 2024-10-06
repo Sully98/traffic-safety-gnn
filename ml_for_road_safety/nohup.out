@@ -1,0 +1,35 @@
+/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch_geometric/data/storage.py:264: UserWarning: Unable to accurately infer 'num_nodes' from the attribute set '{'edge_attr', 'edge_index'}'. Please explicitly set 'num_nodes' as an attribute of 'data' to suppress this warning
+  " to suppress this warning")
+Dataset already downloaded!
+Successfully computed the mean and std of the features!
+epoch 1, epochs left 3
+year: 2016, month: 1
+434
+saving model
+year: 2016, month: 2
+Traceback (most recent call last):
+  File "sully_test.py", line 74, in <module>
+    log = trainer.train(num_months=12)
+  File "/users/sbillingsley/tsg/ml_for_road_safety/trainers/trainer.py", line 201, in train
+    loss = self.train_epoch(epoch,num_months)
+  File "/users/sbillingsley/tsg/ml_for_road_safety/trainers/trainer.py", line 186, in train_epoch
+    loss, samples = self.train_on_month_data(year, month)
+  File "/users/sbillingsley/tsg/ml_for_road_safety/trainers/trainer.py", line 72, in train_on_month_data
+    h = self.model(inputs, new_data.edge_index, edge_attr)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/users/sbillingsley/tsg/ml_for_road_safety/models/gnn_models.py", line 58, in forward
+    h = self.gnns[layer](h_list[layer], edge_index, edge_attr)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch/nn/modules/module.py", line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/users/sbillingsley/tsg/ml_for_road_safety/layers.py", line 46, in forward
+    return self.propagate(edge_index, x=x, edge_attr=edge_embeddings, norm = norm)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch_geometric/nn/conv/message_passing.py", line 342, in propagate
+    out = self.aggregate(out, **aggr_kwargs)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch_geometric/nn/conv/message_passing.py", line 426, in aggregate
+    reduce=self.aggr)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch_scatter/scatter.py", line 152, in scatter
+    return scatter_sum(src, index, dim, out, dim_size)
+  File "/lustre/work/client/users/sbillingsley/.conda/envs/road-gnn-models/lib/python3.6/site-packages/torch_scatter/scatter.py", line 21, in scatter_sum
+    return out.scatter_add_(dim, index, src)
+KeyboardInterrupt
