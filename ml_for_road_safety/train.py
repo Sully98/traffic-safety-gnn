@@ -12,7 +12,16 @@ from data_loaders import TrafficAccidentDataset
 import os
 import numpy as np
 
-args = dict(batch_size=32768, device=0, dropout=0.0, encoder='gcn', epochs=100, eval_steps=10, hidden_channels=256, input_channels=128, input_time_steps=4, jk_type='last', load_dynamic_edge_features=True, load_dynamic_node_features=True, load_model_dir='none', load_model_name='epoch_50.pth', load_static_edge_features=True, log_steps=1, lr=0.01, node_feature_name='MA_ppr_128.npy', node_feature_type='verse', num_gnn_layers=2, num_negative_edges=10000, num_predictor_layers=2, runs=1, sam_rho=0.05, sample_batch_size=10000, sample_node=False, sp_lambda=0.0001, state_name='CA', supcon_lam=0.9, supcon_tmp=0.3, test_years=[2018], train_accident_regression=False, train_sam=False, train_soft_penalty=False, train_supcon=False, train_volume_regression=False, train_years=[2014,2015,2016], use_time_series=False, valid_years=[2017])
+args = dict(batch_size=32768, device=0, dropout=0.0, encoder='gcn', epochs=100, eval_steps=10, 
+            hidden_channels=256, input_channels=128, jk_type='last', 
+            load_dynamic_edge_features=True, load_dynamic_node_features=True, load_model_dir='none', 
+            load_static_edge_features=True, log_steps=1, lr=0.01, 
+            node_feature_type='verse', num_gnn_layers=2, 
+            num_negative_edges=10000, num_predictor_layers=2, runs=1, sam_rho=0.05, 
+            sample_batch_size=10000, sample_node=False, sp_lambda=0.0001, state_name='CA', 
+            supcon_lam=0.9, supcon_tmp=0.3, test_years=[2018], train_accident_regression=False, 
+            train_sam=False, train_soft_penalty=False, train_supcon=False, train_volume_regression=False, 
+            train_years=[2014,2015,2016], use_time_series=False, valid_years=[2017])
 args = dotdict(args)
 device = f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu'
 device = torch.device(device)
