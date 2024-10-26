@@ -169,7 +169,7 @@ class Trainer:
                 self.predictor(h[edge[0]], h[edge[1]], edge_attr[perm])
             neg_preds += [preds.squeeze().cpu()]
         neg_preds = torch.cat(neg_preds, dim=0)
-        print(pos_preds.cpu().detach().numpy())
+        
         results = {}
 
         # Eval ROC-AUC
@@ -206,6 +206,7 @@ class Trainer:
                     self.loggers[key].add_result(run=0, result=result)
             
                 for key, result in results.items():
+                    print(result)
                     train_hits, valid_hits, test_hits = result
                     print(key)
                     print(f'Epoch: {epoch:02d}, '
@@ -232,7 +233,7 @@ class Trainer:
         train_results = {}; train_size = 0
         for year in self.train_years:
             for month in range(1, 13):
-                month_results, month_sample_size = self.test_on_month_data(year, month)
+                month_results, pos_preds,neg_preds,month_sample_size = self.test_on_month_data(year, month)
                 for key, value in month_results.items():
                     if key not in train_results:
                         train_results[key] = 0
@@ -247,7 +248,7 @@ class Trainer:
         val_results = {}; val_size = 0
         for year in self.valid_years:
             for month in range(1, 13):
-                month_results, month_sample_size = self.test_on_month_data(year, month)
+                month_results, pos_preds,neg_preds,month_sample_size = self.test_on_month_data(year, month)
                 for key, value in month_results.items():
                     if key not in val_results:
                         val_results[key] = 0
@@ -262,7 +263,7 @@ class Trainer:
         test_results = {}; test_size = 0
         for year in self.test_years:
             for month in range(1, 13):
-                month_results, month_sample_size = self.test_on_month_data(year, month)
+                month_results, pos_preds,neg_preds,month_sample_size = self.test_on_month_data(year, month)
                 for key, value in month_results.items():
                     if key not in test_results:
                         test_results[key] = 0
